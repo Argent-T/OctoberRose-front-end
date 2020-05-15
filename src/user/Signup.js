@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import{Link} from 'react-router-dom';
 import Layout from '../core/Layout';
-import { API } from '../config';
+import {signup} from '../auth';
 
 const Signup = () => {
     const [values, setvalues] = useState({
@@ -38,21 +38,7 @@ const Signup = () => {
         })
     };
 
-    const signup = (user) => {
-        //  console.log(name, email, password)   ;
-       return fetch(`${API}/signup`, {
-            method: "POST",
-            headers: {
-                Accept: 'application/json',
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(user)
-        }).then(response => {
-            return response.json()
-        }).catch(err => {
-            console.log(err);
-        });
-    };
+    
 
     const signUpForm = () => (
         <form>
@@ -94,7 +80,7 @@ const Signup = () => {
             {showSuccess()}
             {showError()}
             {signUpForm()}
-            {/* {JSON.stringify(values)} */}
+           
         </Layout>
 
     );
