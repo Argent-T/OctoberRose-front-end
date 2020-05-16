@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import Layout from '../core/Layout';
 import { isAuthenticated } from '../auth';
 import { Link } from 'react-router-dom';
+import {createCategory} from './apiAdmin';
 
 const AddCategory = () => {
     const[name, setName] = useState('');
@@ -12,16 +13,25 @@ const AddCategory = () => {
     const{user, token}= isAuthenticated();
 
     const handleChange =(e) => {
-        setError('')
-        setName(e.target.value)
+        setError('');
+        setName(e.target.value);
     }
 
     const clickSubmit =(e) =>{
-        e.preventDefault()
-        setError('')
-        setSuccess(false)
+        e.preventDefault();
+        setError('');
+        setSuccess(false);
         // make request to the api to create category
-    }
+        createCategory(user._id, token, {name})
+        .then(data => {
+            if(data.error) {
+                setError(data.error);
+            }else{
+                setError('');
+                setSuccess(true);
+            }
+        });
+    };
 
     const newCategoryForm =() => (
         <form onSubmit={clickSubmit}>
@@ -35,6 +45,7 @@ const AddCategory = () => {
                 onChange={handleChange} 
                 value = {name}
                 autoFocus
+                required
                 />
                 
             </div>
@@ -44,15 +55,34 @@ const AddCategory = () => {
         </form>
     );
 
+        const showSuccess = () =>{
+            if(success) {
+                return <h3 className="text-success">{name} created!</h3>
+            }
+        };
+        const showError = () =>{
+            if(error) {
+                return <h3 className="text-danger"> {error}</h3>
+            }
+        };
+        const goBack = () => (
+            <div className="mt-5">
+                <Link to="/admin/dashboard" className="text-warning">Back to Dashboard</Link>
+            </div>
+        );
+
     return (
         <Layout 
         title="Add a new category" 
-        description={`hello ${name}, ready to add a new category?`} 
+        description={`hello ${user.name}, ready to add a new category?`} 
         >
           <div className="row">
               
               <div className="col-md-8 offset-md-2">
+                  {showError()}
+                  {showSuccess()}
                   {newCategoryForm()}
+                  {goBack()}
               </div>
           </div>
           
