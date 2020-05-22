@@ -11,7 +11,7 @@ const AddCategory = () => {
 
     // destructure user and token from local storage
     const{user, token}= isAuthenticated();
-
+ 
     const handleChange =(e) => {
         setError('');
         setName(e.target.value);
