@@ -169,10 +169,11 @@ const AddProduct = () => {
             <div className="row">
 
                 <div className="col-md-8 offset-md-2">
-                    {newPostForm()}
+                   
                     {showSuccess()}
                     {showError()}
                     {showLoading()}
+                    {newPostForm()}
                 </div>
             </div>
 
