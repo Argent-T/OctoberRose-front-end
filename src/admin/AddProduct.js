@@ -38,7 +38,7 @@ const AddProduct = () => {
         formData
     } = values;
 
-    //load categories and set from data
+    //load categories and set form data
     const init = () => {
         getCategories().then(data => {
             if (data.error) {
