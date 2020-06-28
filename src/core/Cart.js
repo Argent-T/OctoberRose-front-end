@@ -3,6 +3,7 @@ import Layout from './Layout';
 import { getCart, removeItem } from './cartHelpers'
 import Card from './Card';
 import { Link } from 'react-router-dom';
+import Checkout from './Checkout';
 
 const Cart = () => {
 
@@ -49,7 +50,9 @@ const Cart = () => {
             {items.length > 0? showItems(items) : noItemsMessage()}
             </div>
             <div className = "col-6">
-            <p>show checkout options/ shipping address / total/ etc</p>
+            <h2 className='mb-4'>Cart Summary</h2>
+            <hr/>
+            <Checkout products = {items} />
             </div>
         </div>
 
