@@ -2,13 +2,19 @@ import React, {useState} from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import ShowImage from './ShowImage';
 import moment from 'moment';
-import {addItem} from './cartHelpers';
+import {addItem, updateItem} from './cartHelpers';
 
 const Card = ({ 
     product, 
-    showViewProductButton = true }) => {
+    showViewProductButton = true, 
+    showAddToCartButton = true,
+    cartUpdate = false
+    }) => {
 
-        const [redirect, setRedirect] = useState(false)
+    const [redirect, setRedirect] = useState(false);
+    const [count, setCount] = useState(product.count);
+
+
 
     const showViewButton = (showViewProductButton) => {
         return (
@@ -37,9 +43,13 @@ const Card = ({
 
     const showAddToCart = () => {
         return (
-            <button onClick ={addToCart} className='btn btn-outline-warning mt-2 mb-2'>
+            showAddToCartButton &&(
+
+            <button onClick ={addToCart} 
+            className='btn btn-outline-warning mt-2 mb-2'>
             Add to Cart
            </button>
+        )
         )
     };
 
@@ -48,7 +58,26 @@ const Card = ({
         <span className="badge badge-primary badge-pill">In Stock</span>
         ) : (
             <span className="badge badge-primary badge-pill">Out of Stock</span>)
-    }
+    };
+
+
+    const handleChange= productId => event => {
+        setCount(event.target.value < 1 ? 1 : event.target.value)
+        if(event.target.value >=1 ){
+            updateItem(productId, event.target.value)
+        };
+    };
+
+    const showCartUpdateOptions = cartUpdate => {
+        return cartUpdate && <div> 
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <span className="input=group-text">Adjust Quantity</span>
+                </div>
+                <input type='number' className ="form-control" value={count} onChange={handleChange(product._id)}/>
+            </div>
+        </div>;
+    };
 
     return (
         
@@ -67,7 +96,9 @@ const Card = ({
                     
                     {showViewButton(showViewProductButton)}
                     
-                    {showAddToCart()}
+                    {showAddToCart(showAddToCartButton)}
+
+                    {showCartUpdateOptions(cartUpdate)}
                   
                 </div>
             </div>
