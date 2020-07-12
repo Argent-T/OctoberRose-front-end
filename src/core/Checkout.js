@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from './Layout';
-import { getProducts, getBraintreeClientToken } from './apiCore'
+import { getProducts, getBraintreeClientToken, processPayment } from './apiCore'
 import Card from './Card';
 import { isAuthenticated } from '../auth';
 import { Link } from "react-router-dom";
@@ -51,42 +51,55 @@ const Checkout = ({ products }) => {
 
     }
 
-    const buy =()=>{
+    const buy = () => {
         // send the nonce to server
         // nonce = data.instance.requestPaymentMethod()
 
         let nonce;
         let getNonce = payData.instance
-        .requestPaymentMethod()
-        .then(d => {
-            console.log(d);
-            nonce = d.nonce;
-            // once you have nonce (card type, card number) send nonce as 'paymentMethodNonce' to back end
-            // along with total to be charged
-            console.log(
-                'send nonce and total to process: ',
-                nonce,
-                getTotal(products)
-                );
-            
-        })
-        .catch(error => {
-            console.log('dropin error: ', error);
-            setPayData({...payData, error: error.message});
-        });
+            .requestPaymentMethod()
+            .then(d => {
+                // console.log(d);
+                nonce = d.nonce;
+                // once you have nonce (card type, card number) send nonce as 'paymentMethodNonce' to back end
+                // along with total to be charged
+                // console.log(
+                //     'send nonce and total to process: ',
+                //     nonce,
+                //     getTotal(products)
+                //     );
+                const paymentData = {
+                    paymentMethodNonce: nonce,
+                    amount: getTotal(products)
+                };
+                // console.log(paymentData);
+                processPayment(userId, token, paymentData)
+                    .then(response => {
+                        //console.log(response)
+                        setPayData({ ...payData, success: response.success });
+                        //empty cart
+                        //create order
+
+                    })
+                    .catch(error => console.log(error));
+            })
+            .catch(error => {
+                // console.log('dropin error: ', error);
+                setPayData({ ...payData, error: error.message });
+            });
     };
 
     const showDropIn = () => (
-        <div onBlur = {() => setPayData({...payData, error: ''})} >
+        <div onBlur={() => setPayData({ ...payData, error: '' })} >
             {payData.clientToken !== null && products.length > 0 ? (
                 <div>
-                    <DropIn 
-                    options = {{
-                        authorization: payData.clientToken
-                    }} 
-                    onInstance={instance => (payData.instance = instance)}
+                    <DropIn
+                        options={{
+                            authorization: payData.clientToken
+                        }}
+                        onInstance={instance => (payData.instance = instance)}
                     />
-                    <button onClick={buy} className="btn btn-success">Pay</button>
+                    <button onClick={buy} className="btn btn-success btn-block">Pay</button>
                 </div>
             ) : null}
         </div>
@@ -94,14 +107,23 @@ const Checkout = ({ products }) => {
     )
 
     const showError = error => (
-        <div className = 'alert alert-danger' style = {{display: error ? '' : 'none'}}>
+        <div className='alert alert-danger' 
+        style={{ display: error ? '' : 'none' }}>
             {error}
         </div>
-        );
-    
+    );
+
+    const showSuccess = success => (
+        <div className='alert alert-info' 
+        style={{ display: success ? '' : 'none' }}>
+            Thanks! Your payment was successful!
+        </div>
+    );
+
 
     return <div>
         <h2>Total: ${getTotal()}</h2>
+        {showSuccess(payData.success)}
         {showError(payData.error)}
         {showCheckout()}
     </div>
