@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import Layout from './Layout';
 import { getProducts, getBraintreeClientToken, processPayment } from './apiCore'
 import Card from './Card';
+import {emptyCart} from './cartHelpers';
 import { isAuthenticated } from '../auth';
 import { Link } from "react-router-dom";
 import DropIn from 'braintree-web-drop-in-react';
 
-const Checkout = ({ products }) => {
+const Checkout = ({ products, setRun = f => f, run = undefined }) => {
 
     const [payData, setPayData] = useState({
+        loading: false,
         success: false,
         clientToken: null,
         error: '',
@@ -52,6 +54,7 @@ const Checkout = ({ products }) => {
     }
 
     const buy = () => {
+        setPayData({...payData, loading: true});
         // send the nonce to server
         // nonce = data.instance.requestPaymentMethod()
 
@@ -79,9 +82,18 @@ const Checkout = ({ products }) => {
                         setPayData({ ...payData, success: response.success });
                         //empty cart
                         //create order
+                        emptyCart(() =>{
+                            setRun(!run)
+                            console.log('payment success and cart emptied');
+                            setPayData({success: true, loading: false});
+                           
+                        });
 
                     })
-                    .catch(error => console.log(error));
+                    .catch(error => {
+                        console.log(error)
+                        setPayData({...payData, loading: false});
+                    });
             })
             .catch(error => {
                 // console.log('dropin error: ', error);
@@ -95,7 +107,10 @@ const Checkout = ({ products }) => {
                 <div>
                     <DropIn
                         options={{
-                            authorization: payData.clientToken
+                            authorization: payData.clientToken,
+                            paypal: {
+                                flow: 'vault'
+                            }
                         }}
                         onInstance={instance => (payData.instance = instance)}
                     />
@@ -120,9 +135,12 @@ const Checkout = ({ products }) => {
         </div>
     );
 
+    const showLoading = loading =>(<h2 style={{ display: loading ? '' : 'none' }}>Loading...</h2>);
+   
 
     return <div>
         <h2>Total: ${getTotal()}</h2>
+        {showLoading(payData.loading)}
         {showSuccess(payData.success)}
         {showError(payData.error)}
         {showCheckout()}
