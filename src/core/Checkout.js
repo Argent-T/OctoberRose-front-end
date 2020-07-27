@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from './Layout';
-import { getProducts, getBraintreeClientToken, processPayment } from './apiCore'
+import { getProducts, getBraintreeClientToken, processPayment, createOrder } from './apiCore'
 import Card from './Card';
 import {emptyCart} from './cartHelpers';
 import { isAuthenticated } from '../auth';
@@ -41,6 +41,10 @@ const Checkout = ({ products, setRun = f => f, run = undefined }) => {
         }, 0);
     };
 
+    const handleAddress = event => {
+        setPayData({...payData, address: event.target.value});
+    };
+
 
     const showCheckout = () => {
         return isAuthenticated() ? (
@@ -79,9 +83,18 @@ const Checkout = ({ products, setRun = f => f, run = undefined }) => {
                 processPayment(userId, token, paymentData)
                     .then(response => {
                         //console.log(response)
+
+                        //create order
+                        const createOrderData = {
+                            products: products,
+                            transaction_id: response.transaction.id,
+                            amount: response.transaction.amount,
+                            address: payData.address
+                        }
+                        createOrder(userId, token, createOrderData)
+
                         setPayData({ ...payData, success: response.success });
                         //empty cart
-                        //create order
                         emptyCart(() =>{
                             setRun(!run)
                             console.log('payment success and cart emptied');
@@ -105,6 +118,15 @@ const Checkout = ({ products, setRun = f => f, run = undefined }) => {
         <div onBlur={() => setPayData({ ...payData, error: '' })} >
             {payData.clientToken !== null && products.length > 0 ? (
                 <div>
+                    <div className="gorm-group mb-3">
+                        <label className="text-muted">Delivery address:</label>
+                        <textarea
+                        onChange={handleAddress}
+                        className = 'form-control'
+                        value={payData.address}
+                        placeholder="Type your delivery address here..."
+                        />                        
+                    </div>
                     <DropIn
                         options={{
                             authorization: payData.clientToken,
