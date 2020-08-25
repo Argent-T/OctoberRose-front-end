@@ -16,7 +16,7 @@ const Dashboard = () => {
                         <Link className="nav-link" to="/cart">My Cart</Link>
                     </li>
                     <li className="list-group-item">
-                        <Link className="nav-link" to="/profile/update">Update Profile</Link>
+                        <Link className="nav-link" to={`/profile/${_id}`}>Update Profile</Link>
                     </li>
 
                 </ul>
