@@ -55,7 +55,9 @@ const Checkout = ({ products, setRun = f => f, run = undefined }) => {
                 </Link>
             )
 
-    }
+    };
+
+    let deliveryAddress = payData.address;
 
     const buy = () => {
         setPayData({...payData, loading: true});
@@ -89,7 +91,7 @@ const Checkout = ({ products, setRun = f => f, run = undefined }) => {
                             products: products,
                             transaction_id: response.transaction.id,
                             amount: response.transaction.amount,
-                            address: payData.address
+                            address: deliveryAddress
                         }
                         createOrder(userId, token, createOrderData)
 
