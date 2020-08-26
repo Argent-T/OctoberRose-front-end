@@ -61,6 +61,7 @@ const Dashboard = () => {
                 <h3 className="card-header">Purchase history</h3>
                 <ul className="list-group">
                     <li className="list-group-item">
+                        {JSON.stringify(history)}
                         {history.map((h, i) => {
                             return (
                                 <div key={i}>
@@ -70,9 +71,10 @@ const Dashboard = () => {
                                             <div key={i}>
                                                 <h6>Product name: {p.name}</h6>
                                                 <h6>Product price: ${p.price}</h6>
+                                                <h6>Quantity: {p.count}</h6>
                                                 <h6>
                                                     Purchased date:{" "}
-                                                    {moment(p.createdAt).format('MMMM Do YYYY')}
+                                                    {moment(h.createdAt).format('MMMM Do YYYY')}
                                                 </h6>
                                             </div>
                                         );
